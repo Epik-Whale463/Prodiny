@@ -1,0 +1,302 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.98 0.002 240);
+  --foreground: oklch(0.15 0.01 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.01 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.01 240);
+  --primary: oklch(0.55 0.18 220);
+  --primary-foreground: oklch(0.98 0.002 240);
+  --secondary: oklch(0.96 0.005 240);
+  --secondary-foreground: oklch(0.15 0.01 240);
+  --muted: oklch(0.96 0.005 240);
+  --muted-foreground: oklch(0.45 0.01 240);
+  --accent: oklch(0.94 0.008 240);
+  --accent-foreground: oklch(0.15 0.01 240);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.88 0.01 240);
+  --input: oklch(0.98 0.005 35);
+  --ring: oklch(0.55 0.18 220);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.15 0.01 240);
+  --sidebar-primary: oklch(0.55 0.18 220);
+  --sidebar-primary-foreground: oklch(0.98 0.002 240);
+  --sidebar-accent: oklch(0.94 0.008 240);
+  --sidebar-accent-foreground: oklch(0.15 0.01 240);
+  --sidebar-border: oklch(0.88 0.01 240);
+  --sidebar-ring: oklch(0.55 0.18 220);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* Auth Container Sliding Animations */
+.auth-container {
+  overflow: hidden;
+}
+
+.auth-slider {
+  display: flex;
+  width: 200%;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-slider.slide-to-signin {
+  transform: translateX(-50%);
+}
+
+.auth-panel {
+  width: 50%;
+  flex-shrink: 0;
+}
+
+/* Mod
+ern Input Field Styling */
+.modern-input {
+  @apply relative;
+}
+
+.modern-input input {
+  @apply w-full px-4 py-3 bg-white/90 backdrop-blur-sm border-2 border-white/30 rounded-xl text-foreground placeholder:text-muted-foreground/70 transition-all duration-300 ease-in-out focus:border-primary/50 focus:bg-white focus:shadow-lg focus:shadow-primary/10 hover:border-white/50 hover:bg-white/95;
+}
+
+.modern-input input:focus {
+  outline: none;
+  transform: translateY(-1px);
+}
+
+/* Modern Radio Button Styling */
+.modern-radio {
+  @apply relative;
+}
+
+.modern-radio input[type="radio"] {
+  @apply sr-only;
+}
+
+.modern-radio label {
+  @apply flex items-center space-x-3 cursor-pointer px-4 py-2 rounded-lg bg-white/60 backdrop-blur-sm border border-white/40 transition-all duration-300 ease-in-out hover:bg-white/80 hover:border-white/60;
+}
+
+.modern-radio input[type="radio"]:checked+label {
+  @apply bg-primary/20 border-primary/50 text-primary;
+}
+
+.modern-radio label::before {
+  @apply content-[''] w-4 h-4 rounded-full border-2 border-current transition-all duration-300 ease-in-out;
+}
+
+.modern-radio input[type="radio"]:checked+label::before {
+  @apply bg-primary border-primary shadow-sm;
+}
+
+/* Modern Button Styling */
+.modern-button {
+  @apply px-8 py-3 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-medium rounded-xl transition-all duration-300 ease-in-out hover:from-primary/90 hover:to-primary/70 hover:shadow-lg hover:shadow-primary/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50;
+}
+
+.modern-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Smooth 
+Form Transitions */
+.form-field-transition {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.form-field-enter {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  transform: translateY(-10px);
+}
+
+.form-field-enter-active {
+  opacity: 1;
+  max-height: 200px;
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+  transform: translateY(0);
+}
+
+.form-field-exit {
+  opacity: 1;
+  max-height: 200px;
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+  transform: translateY(0);
+}
+
+.form-field-exit-active {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  transform: translateY(-10px);
+}
+
+/* Smooth container height adjustment */
+.form-container {
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth
+ Form Field Transitions */
+.form-field-transition {
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  overflow: hidden;
+}
+
+.form-field-enter-active {
+  opacity: 1;
+  max-height: 300px;
+  transform: translateY(0);
+}
+
+.form-field-exit-active {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-8px);
+}
+
+/* Smooth container transitions */
+.form-container {
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/*
+ Enhanced Modern Input Field Styling */
+.modern-input input {
+  @apply w-full px-4 py-3 lg:px-5 lg:py-4 bg-white/90 backdrop-blur-sm border-2 border-white/30 rounded-xl text-foreground placeholder:text-muted-foreground/70 text-sm lg:text-base transition-all duration-300 ease-in-out focus:border-primary/50 focus:bg-white focus:shadow-lg focus:shadow-primary/10 hover:border-white/50 hover:bg-white/95;
+}
+
+.modern-input input:focus {
+  outline: none;
+  transform: translateY(-1px);
+}
+
+/* Enhanced Modern Button Styling */
+.modern-button {
+  @apply px-6 py-3 lg:px-8 lg:py-4 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-medium rounded-xl text-sm lg:text-base transition-all duration-300 ease-in-out hover:from-primary/90 hover:to-primary/70 hover:shadow-lg hover:shadow-primary/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50;
+}
+
+.modern-button:hover {
+  transform: translateY(-1px);
+}
+
+/*
+ Enhanced Form Styling */
+.modern-input-enhanced input {
+  @apply w-full px-5 py-4 bg-white/90 backdrop-blur-sm border-2 border-white/30 rounded-xl text-foreground placeholder:text-muted-foreground/70 text-base transition-all duration-300 ease-in-out focus:border-primary/50 focus:bg-white focus:shadow-lg focus:shadow-primary/10 hover:border-white/50 hover:bg-white/95;
+}
+
+.modern-input-enhanced input:focus {
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.modern-button-enhanced {
+  @apply px-8 py-4 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-medium rounded-xl text-base transition-all duration-300 ease-in-out hover:from-primary/90 hover:to-primary/70 hover:shadow-lg hover:shadow-primary/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50;
+}
+
+.modern-button-enhanced:hover {
+  transform: translateY(-1px);
+}
