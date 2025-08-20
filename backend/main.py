@@ -14,10 +14,13 @@ import asyncio
 # Initialize FastAPI app
 app = FastAPI(title="CollegeHub API", version="1.0.0")
 
+# Get CORS origins from environment variable or use default
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+
 # CORS middleware for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Next.js dev server
+    allow_origins=cors_origins,  # Use environment variable for production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

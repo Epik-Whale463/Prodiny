@@ -18,7 +18,7 @@ services:
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
-        value: https://prodiny-frontend.onrender.com
+        value: https://prodiny.onrender.com,https://prodiny-frontend.onrender.com
     healthCheckPath: /health
     
   # Frontend Static Site
@@ -28,7 +28,7 @@ services:
     staticPublishPath: frontend/out
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        value: https://prodiny-backend.onrender.com
+        value: https://prodiny.onrender.com
       - key: NODE_ENV
         value: production
 
