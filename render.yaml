@@ -21,16 +21,19 @@ services:
         value: https://prodiny.onrender.com,https://prodiny-frontend.onrender.com
     healthCheckPath: /health
     
-  # Frontend Static Site
+  # Frontend Web Service
   - type: web
     name: prodiny-frontend
+    runtime: node
     buildCommand: cd frontend && npm ci && npm run build
-    staticPublishPath: frontend/out
+    startCommand: cd frontend && npm start
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        value: https://prodiny.onrender.com
+        value: https://prodiny-backend.onrender.com
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3000
 
 databases:
   # PostgreSQL Database

@@ -141,6 +141,8 @@ export default function Subgroups() {
     (subgroup.description && subgroup.description.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
+  const joinedGroups = subgroups.filter(subgroup => subgroup.isJoined)
+
   const handleJoinToggle = async (subgroupId: number) => {
     try {
       // For now, just update local state (replace with real API call later)
@@ -278,11 +280,11 @@ export default function Subgroups() {
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
                           <span className="flex items-center">
                             <Users className="h-3 w-3 mr-1" />
-                            {subgroup.member_count.toLocaleString()}
+                            {subgroup.members.toLocaleString()}
                           </span>
                           <span className="flex items-center">
                             <MessageSquare className="h-3 w-3 mr-1" />
-                            {subgroup.post_count}
+                            {subgroup.posts}
                           </span>
                         </div>
                       </div>
@@ -297,11 +299,11 @@ export default function Subgroups() {
                   {/* Join Button */}
                   <Button
                     onClick={() => handleJoinToggle(subgroup.id)}
-                    variant={subgroup.is_joined ? "secondary" : "default"}
+                    variant={subgroup.isJoined ? "secondary" : "default"}
                     className="w-full"
                     size="sm"
                   >
-                    {subgroup.is_joined ? (
+                    {subgroup.isJoined ? (
                       <>
                         <Check className="h-4 w-4 mr-2" />
                         Joined
