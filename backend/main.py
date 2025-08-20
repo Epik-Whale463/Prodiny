@@ -15,14 +15,21 @@ import asyncio
 app = FastAPI(title="CollegeHub API", version="1.0.0")
 
 # Get CORS origins from environment variable or use default
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:3000,https://prodiny-frontend.onrender.com")
+cors_origins = [origin.strip() for origin in cors_origins_str.split(",")]
+
+# For debugging - also allow wildcard temporarily
+cors_origins.append("*")
+
+# Print CORS origins for debugging
+print(f"CORS Origins: {cors_origins}")
 
 # CORS middleware for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,  # Use environment variable for production
+    allow_origins=["*"],  # Temporarily allow all origins for debugging
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -419,6 +426,19 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+
+# Explicit OPTIONS handlers for CORS preflight requests
+@app.options("/register")
+async def register_options():
+    return {"message": "OK"}
+
+@app.options("/login")
+async def login_options():
+    return {"message": "OK"}
+
+@app.options("/me")
+async def me_options():
+    return {"message": "OK"}
 
 @app.post("/register", response_model=dict)
 async def register(user_data: UserRegistration):
