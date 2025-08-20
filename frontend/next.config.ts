@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   
   // Environment-specific API URL
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://prodiny-backend.onrender.com',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://prodiny.onrender.com',
   },
   
   // Performance optimizations

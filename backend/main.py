@@ -18,16 +18,13 @@ app = FastAPI(title="CollegeHub API", version="1.0.0")
 cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:3000,https://prodiny-frontend.onrender.com")
 cors_origins = [origin.strip() for origin in cors_origins_str.split(",")]
 
-# For debugging - also allow wildcard temporarily
-cors_origins.append("*")
-
 # Print CORS origins for debugging
 print(f"CORS Origins: {cors_origins}")
 
 # CORS middleware for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Temporarily allow all origins for debugging
+    allow_origins=cors_origins,  # Use correct origins from environment
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],

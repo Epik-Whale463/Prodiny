@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 // Use the same API base URL as configured in next.config.ts
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodiny-backend.onrender.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodiny.onrender.com';
 
 interface User {
   id: number;
