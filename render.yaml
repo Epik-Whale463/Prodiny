@@ -1,0 +1,40 @@
+# Render Blueprint for Prodiny Platform
+# This file defines infrastructure as code for the entire application
+
+services:
+  # Backend API Service
+  - type: web
+    name: prodiny-backend
+    runtime: python3
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && python start_server.py
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: prodiny-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://prodiny-frontend.onrender.com
+    healthCheckPath: /health
+    
+  # Frontend Static Site
+  - type: web
+    name: prodiny-frontend
+    runtime: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: ./frontend/out
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://prodiny-backend.onrender.com
+      - key: NODE_ENV
+        value: production
+
+databases:
+  # PostgreSQL Database
+  - name: prodiny-db
+    databaseName: prodiny_production
+    user: prodiny_user
