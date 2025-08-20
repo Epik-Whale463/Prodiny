@@ -19,7 +19,7 @@ services:
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
-        value: https://prodiny.onrender.com,https://prodiny-frontend.onrender.com
+        value: https://prodiny-frontend.onrender.com,http://localhost:3000,*
     healthCheckPath: /health
     
   # Frontend Web Service
