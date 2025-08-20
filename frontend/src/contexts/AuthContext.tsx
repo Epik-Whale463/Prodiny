@@ -3,6 +3,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
+// Use the same API base URL as configured in next.config.ts
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodiny-backend.onrender.com';
+
 interface User {
   id: number;
   name: string;
@@ -60,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchCurrentUser = async (token: string) => {
     try {
-      const response = await fetch('http://localhost:8000/me', {
+      const response = await fetch(`${API_BASE_URL}/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -99,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('http://localhost:8000/login', {
+      const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,7 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (userData: RegisterData) => {
     try {
-      const response = await fetch('http://localhost:8000/register', {
+      const response = await fetch(`${API_BASE_URL}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('Not authenticated');
     try {
-      const response = await fetch('http://localhost:8000/profile-setup', {
+      const response = await fetch(`${API_BASE_URL}/profile-setup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
