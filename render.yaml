@@ -1,5 +1,6 @@
 # Render Blueprint for Prodiny Platform
 # This file defines infrastructure as code for the entire application
+# Updated: Force redeploy to fix localhost URLs
 
 services:
   # Backend API Service
