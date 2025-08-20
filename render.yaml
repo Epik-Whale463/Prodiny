@@ -22,7 +22,7 @@ services:
     healthCheckPath: /health
     
   # Frontend Static Site
-  - type: static
+  - type: web
     name: prodiny-frontend
     buildCommand: cd frontend && npm ci && npm run build
     staticPublishPath: frontend/out
