@@ -103,10 +103,13 @@ export default function Dashboard() {
         <SidebarInset>
           {/* Header */}
           <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-14 max-w-screen-2xl items-center px-2 md:px-6 lg:px-8">
-              {/* Search - now takes full space */}
+            <div className="container flex h-14 max-w-screen-2xl items-center">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              
+              {/* Search */}
               <div className="flex flex-1 items-center space-x-2">
-                <div className="relative flex-1 max-w-lg">
+                <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="search"
@@ -115,60 +118,78 @@ export default function Dashboard() {
                   />
                 </div>
               </div>
+
+              {/* User Menu */}
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="sm" onClick={() => router.push('/profile-setup')}>
+                  <Avatar className="h-6 w-6 mr-2">
+                    <AvatarFallback className="text-xs">
+                      {user?.name?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:inline-block">{user?.name}</span>
+                </Button>
+              </div>
             </div>
           </header>
 
           {/* Main Content */}
-          <div className="flex-1 px-2 py-4 md:px-6 lg:px-8 w-full">
-            <div className="mx-auto w-full max-w-[1600px]">
-              <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_340px]">
-                {/* Main Feed - full width on mobile, 1fr on desktop */}
-                <div className="space-y-6 fade-in">
+          <div className="flex-1 space-y-4 p-4 md:p-6 lg:p-8">
+            <div className="mx-auto max-w-6xl">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+                {/* Main Feed - Takes 3 columns on large screens */}
+                <div className="lg:col-span-3 space-y-6">
                   {/* Create Post */}
-                  <div className="glass-card rounded-xl p-3 md:p-4 lg:p-5 xl:p-6 interactive-hover">
-                    <CreatePost />
-                  </div>
+                  <Card>
+                    <CardContent className="p-6">
+                      <CreatePost />
+                    </CardContent>
+                  </Card>
 
                   {/* Posts Feed */}
                   <div className="space-y-4">
                     {posts.length === 0 ? (
-                      <div className="glass-card rounded-xl flex items-center justify-center py-12 scale-in">
-                        <div className="text-center">
-                          <h3 className="text-lg font-semibold">No posts yet</h3>
-                          <p className="text-muted-foreground mt-2">Be the first to create a post!</p>
-                        </div>
-                      </div>
+                      <Card>
+                        <CardContent className="flex items-center justify-center py-12">
+                          <div className="text-center">
+                            <h3 className="text-lg font-semibold">No posts yet</h3>
+                            <p className="text-muted-foreground mt-2">Be the first to create a post!</p>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ) : (
-                      posts.map((post, index) => (
-                        <div key={post.id} className={`fade-in delay-${Math.min(index, 5)}`}>
-                          <PostCard post={post} />
-                        </div>
+                      posts.map((post) => (
+                        <PostCard key={post.id} post={post} />
                       ))
                     )}
                   </div>
                 </div>
 
-                {/* Right Sidebar - fixed width, sticky on desktop */}
-                <div className="space-y-6 xl:sticky xl:top-20 h-fit">
+                {/* Right Sidebar - Takes 1 column on large screens */}
+                <div className="space-y-6">
                   {/* User Profile Card */}
-                  <div className="rounded-xl border bg-card shadow-sm p-4">
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-12 w-12">
-                        <AvatarFallback className="text-lg">
-                          {user?.name?.charAt(0) || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="space-y-1">
-                        <h3 className="font-semibold leading-none">{user?.name}</h3>
-                        <p className="text-sm text-muted-foreground">{user?.college_name}</p>
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-12 w-12">
+                          <AvatarFallback className="text-lg">
+                            {user?.name?.charAt(0) || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="space-y-1">
+                          <h3 className="font-semibold leading-none">{user?.name}</h3>
+                          <p className="text-sm text-muted-foreground">{user?.college_name}</p>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </CardHeader>
+                  </Card>
 
                   {/* Popular Communities */}
-                  <div className="rounded-xl border bg-card shadow-sm p-4">
-                    <h3 className="font-semibold mb-3">Popular Communities</h3>
-                    <div className="space-y-3">
+                  <Card>
+                    <CardHeader>
+                      <h3 className="font-semibold">Popular Communities</h3>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
                       {subgroups.slice(0, 5).map((subgroup) => (
                         <div key={subgroup.id} className="flex items-center justify-between">
                           <div className="space-y-1">
@@ -189,13 +210,15 @@ export default function Dashboard() {
                       {subgroups.length === 0 && (
                         <p className="text-sm text-muted-foreground">No communities yet</p>
                       )}
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
 
                   {/* Quick Stats */}
-                  <div className="rounded-xl border bg-card shadow-sm p-4">
-                    <h3 className="font-semibold mb-3">Quick Stats</h3>
-                    <div className="space-y-2">
+                  <Card>
+                    <CardHeader>
+                      <h3 className="font-semibold">Quick Stats</h3>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Posts today</span>
                         <span className="font-medium">
@@ -214,8 +237,8 @@ export default function Dashboard() {
                         <span className="text-muted-foreground">Total posts</span>
                         <span className="font-medium">{posts.length}</span>
                       </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
             </div>

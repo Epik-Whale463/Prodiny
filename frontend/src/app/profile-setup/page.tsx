@@ -85,17 +85,17 @@ export default function ProfileSetup() {
         return
       }
 
-      if (user.profileCompleted) {
+      if (user.profileCompleted || user.profile_completed) {
         router.push('/dashboard')
         return
       }
 
       // Set default values from Firebase user
       setFormData({
-        fullName: user.displayName || '',
-        college: user.college || '',
-        skills: user.skills || [],
-        githubProfile: user.githubProfile || ''
+        fullName: user.name || '',
+        college: user.college_name || '',
+        skills: Array.isArray(user.skills) ? user.skills as string[] : (typeof user.skills === 'string' ? user.skills.split(',').map(s => s.trim()).filter(Boolean) : []),
+        githubProfile: (user as any).githubProfile || user.github_profile || ''
       })
     }
   }, [user, authLoading, router])
@@ -159,11 +159,10 @@ export default function ProfileSetup() {
     try {
       // Update user profile in Firebase
       await updateUserProfile({
-        displayName: formData.fullName,
+        fullName: formData.fullName,
         college: formData.college,
         skills: formData.skills,
-        githubProfile: formData.githubProfile || undefined,
-        profileCompleted: true
+        githubProfile: formData.githubProfile || undefined
       })
       
       toast.success("Profile setup complete! 🎉", {

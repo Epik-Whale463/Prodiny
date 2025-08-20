@@ -46,71 +46,147 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.98 0.002 240);
-  --foreground: oklch(0.15 0.01 240);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.01 240);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.01 240);
-  --primary: oklch(0.55 0.18 220);
-  --primary-foreground: oklch(0.98 0.002 240);
-  --secondary: oklch(0.96 0.005 240);
-  --secondary-foreground: oklch(0.15 0.01 240);
-  --muted: oklch(0.96 0.005 240);
-  --muted-foreground: oklch(0.45 0.01 240);
-  --accent: oklch(0.94 0.008 240);
-  --accent-foreground: oklch(0.15 0.01 240);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.88 0.01 240);
-  --input: oklch(0.98 0.005 35);
-  --ring: oklch(0.55 0.18 220);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.15 0.01 240);
-  --sidebar-primary: oklch(0.55 0.18 220);
-  --sidebar-primary-foreground: oklch(0.98 0.002 240);
-  --sidebar-accent: oklch(0.94 0.008 240);
-  --sidebar-accent-foreground: oklch(0.15 0.01 240);
-  --sidebar-border: oklch(0.88 0.01 240);
-  --sidebar-ring: oklch(0.55 0.18 220);
+  
+  /* Educational Platform Color Scheme 
+   * Based on research: Blue promotes trust and focus for learning
+   * Green encourages growth and progress
+   * Soft neutrals reduce cognitive load 
+   * Warm accents provide encouragement 
+   */
+  
+  /* Primary Learning Background - Soft, calm blue-gray */
+  --background: 247 249 252; /* Blue-gray 50 - reduces eye strain for long study sessions */
+  --foreground: 30 41 59; /* Slate 700 - optimal reading contrast */
+  
+  /* Card & Surface Colors - Clean, focused environment */
+  --card: 255 255 255; /* Pure white for content clarity */
+  --card-foreground: 30 41 59; /* Slate 700 - readable text */
+  --popover: 255 255 255;
+  --popover-foreground: 30 41 59;
+  
+  /* Primary - Academic Trust Blue (enhances focus and credibility) */
+  --primary: 37 99 235; /* Blue 600 - strong academic blue that builds trust */
+  --primary-foreground: 255 255 255;
+  
+  /* Secondary - Calm Study Gray */
+  --secondary: 241 245 249; /* Slate 100 - non-distracting background */
+  --secondary-foreground: 30 41 59;
+  
+  /* Muted - Gentle Reading Environment */
+  --muted: 248 250 252; /* Slate 50 - subtle backgrounds */
+  --muted-foreground: 100 116 139; /* Slate 500 - secondary text */
+  
+  /* Accent - Growth & Achievement Green (psychological association with success) */
+  --accent: 16 185 129; /* Emerald 500 - motivating progress color */
+  --accent-foreground: 255 255 255;
+  
+  /* Destructive - Gentle Warning (less harsh than traditional red) */
+  --destructive: 220 38 127; /* Rose 600 - attention without anxiety */
+  --destructive-foreground: 255 255 255;
+  
+  /* Borders & Inputs - Subtle Definition */
+  --border: 226 232 240; /* Slate 200 - clear but gentle boundaries */
+  --input: 241 245 249; /* Slate 100 - comfortable input backgrounds */
+  --ring: 37 99 235; /* Blue 600 - focused interaction indicator */
+  
+  /* Educational Data Visualization Colors */
+  --chart-1: 16 185 129; /* Emerald 500 - Growth/Progress */
+  --chart-2: 37 99 235; /* Blue 600 - Knowledge/Understanding */
+  --chart-3: 139 92 246; /* Violet 500 - Creativity/Innovation */
+  --chart-4: 245 158 11; /* Amber 500 - Achievement/Awards */
+  --chart-5: 236 72 153; /* Pink 500 - Collaboration/Social */
+  
+  /* Sidebar - Learning Navigation Hub */
+  --sidebar: 248 250 252; /* Slate 50 - clean navigation space */
+  --sidebar-foreground: 30 41 59; /* Slate 700 - clear menu text */
+  --sidebar-primary: 29 78 216; /* Blue 700 - stronger navigation emphasis */
+  --sidebar-primary-foreground: 255 255 255;
+  --sidebar-accent: 241 245 249; /* Slate 100 - hover states */
+  --sidebar-accent-foreground: 30 41 59;
+  --sidebar-border: 226 232 240; /* Slate 200 - subtle separation */
+  --sidebar-ring: 37 99 235; /* Blue 600 - focus indicator */
+  
+  /* Educational Glassmorphism - Enhanced Learning Environment */
+  --glass-bg: rgba(255, 255, 255, 0.9); /* More opaque for better readability */
+  --glass-bg-secondary: rgba(247, 249, 252, 0.8); /* Background-tinted glass */
+  --glass-border: rgba(37, 99, 235, 0.1); /* Subtle blue tint */
+  --glass-shadow: 0 8px 32px rgba(37, 99, 235, 0.06); /* Blue-tinted shadows */
+  --glass-shadow-hover: 0 12px 40px rgba(37, 99, 235, 0.1);
+  
+  /* Educational Success States */
+  --success: 16 185 129; /* Emerald 500 - achievement and progress */
+  --success-foreground: 255 255 255;
+  --warning: 245 158 11; /* Amber 500 - attention needed */
+  --warning-foreground: 255 255 255;
+  --info: 59 130 246; /* Blue 500 - informational content */
+  --info-foreground: 255 255 255;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark Mode Educational Color Scheme 
+   * Maintains blue academic theme while being easy on eyes for night study
+   * Reduced contrast for comfortable extended learning sessions
+   */
+  
+  /* Dark Learning Background - Deep blue-gray for focus */
+  --background: 15 23 42; /* Slate 800 - calming dark background for night study */
+  --foreground: 241 245 249; /* Slate 100 - gentle light text */
+  
+  /* Dark Cards & Surfaces */
+  --card: 30 41 59; /* Slate 700 - elevated surfaces */
+  --card-foreground: 241 245 249; /* Slate 100 - readable on dark */
+  --popover: 30 41 59; /* Slate 700 */
+  --popover-foreground: 241 245 249; /* Slate 100 */
+  
+  /* Primary - Softer Academic Blue (easier on dark backgrounds) */
+  --primary: 96 165 250; /* Blue 400 - accessible blue for dark mode */
+  --primary-foreground: 15 23 42; /* Slate 800 - dark text on light blue */
+  
+  /* Secondary - Dark Study Environment */
+  --secondary: 51 65 85; /* Slate 600 - subtle backgrounds */
+  --secondary-foreground: 241 245 249; /* Slate 100 */
+  
+  /* Muted - Gentle Dark Reading */
+  --muted: 51 65 85; /* Slate 600 - background elements */
+  --muted-foreground: 148 163 184; /* Slate 400 - secondary text */
+  
+  /* Accent - Growth Green (adjusted for dark) */
+  --accent: 52 211 153; /* Emerald 400 - brighter green for dark backgrounds */
+  --accent-foreground: 15 23 42; /* Slate 800 - dark text */
+  
+  /* Destructive - Gentle Dark Warning */
+  --destructive: 244 114 182; /* Pink 400 - softer warning color */
+  --destructive-foreground: 15 23 42; /* Slate 800 */
+  
+  /* Dark Borders & Inputs */
+  --border: 51 65 85; /* Slate 600 - visible but subtle */
+  --input: 51 65 85; /* Slate 600 - input backgrounds */
+  --ring: 96 165 250; /* Blue 400 - focus indicator */
+  
+  /* Dark Educational Data Visualization */
+  --chart-1: 52 211 153; /* Emerald 400 - Growth/Progress */
+  --chart-2: 96 165 250; /* Blue 400 - Knowledge/Understanding */
+  --chart-3: 167 139 250; /* Violet 400 - Creativity/Innovation */
+  --chart-4: 251 191 36; /* Amber 400 - Achievement/Awards */
+  --chart-5: 244 114 182; /* Pink 400 - Collaboration/Social */
+  
+  /* Dark Sidebar - Night Study Navigation */
+  --sidebar: 30 41 59; /* Slate 700 - dark sidebar */
+  --sidebar-foreground: 241 245 249; /* Slate 100 - clear text */
+  --sidebar-primary: 96 165 250; /* Blue 400 - navigation emphasis */
+  --sidebar-primary-foreground: 15 23 42; /* Slate 800 */
+  --sidebar-accent: 51 65 85; /* Slate 600 - hover states */
+  --sidebar-accent-foreground: 241 245 249; /* Slate 100 */
+  --sidebar-border: 51 65 85; /* Slate 600 - subtle borders */
+  --sidebar-ring: 96 165 250; /* Blue 400 - focus */
+  
+  /* Dark Educational Success States */
+  --success: 52 211 153; /* Emerald 400 - achievement */
+  --success-foreground: 15 23 42; /* Slate 800 */
+  --warning: 251 191 36; /* Amber 400 - attention */
+  --warning-foreground: 15 23 42; /* Slate 800 */
+  --info: 96 165 250; /* Blue 400 - informational */
+  --info-foreground: 15 23 42; /* Slate 800 */
 }
 
 @layer base {
@@ -300,3 +376,247 @@ Form Transitions */
 .modern-button-enhanced:hover {
   transform: translateY(-1px);
 }
+
+/* Educational Platform Glassmorphism Effects */
+.glass-card {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(37, 99, 235, 0.15);
+}
+
+.glass-sidebar {
+  background: var(--glass-bg-secondary);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-right: 1px solid var(--glass-border);
+}
+
+/* Educational Color Utility Classes */
+.edu-primary {
+  color: rgb(37 99 235);
+}
+
+.edu-bg-primary {
+  background-color: rgb(37 99 235);
+}
+
+.edu-success {
+  color: rgb(16 185 129);
+}
+
+.edu-bg-success {
+  background-color: rgb(16 185 129);
+}
+
+.edu-info {
+  color: rgb(59 130 246);
+}
+
+.edu-bg-info {
+  background-color: rgb(59 130 246);
+}
+
+.edu-warning {
+  color: rgb(245 158 11);
+}
+
+.edu-bg-warning {
+  background-color: rgb(245 158 11);
+}
+
+.edu-creativity {
+  color: rgb(139 92 246);
+}
+
+.edu-bg-creativity {
+  background-color: rgb(139 92 246);
+}
+
+/* Educational Gradient Backgrounds */
+.edu-gradient-primary {
+  background: linear-gradient(135deg, rgb(37 99 235) 0%, rgb(59 130 246) 100%);
+}
+
+.edu-gradient-success {
+  background: linear-gradient(135deg, rgb(16 185 129) 0%, rgb(52 211 153) 100%);
+}
+
+.edu-gradient-learning {
+  background: linear-gradient(135deg, rgb(37 99 235) 0%, rgb(16 185 129) 100%);
+}
+
+.edu-gradient-achievement {
+  background: linear-gradient(135deg, rgb(245 158 11) 0%, rgb(251 191 36) 100%);
+}
+
+/* Educational Progress Indicators */
+.progress-learning {
+  background: linear-gradient(90deg, rgb(37 99 235) 0%, rgb(59 130 246) 100%);
+}
+
+.progress-skill {
+  background: linear-gradient(90deg, rgb(16 185 129) 0%, rgb(52 211 153) 100%);
+}
+
+.progress-creative {
+  background: linear-gradient(90deg, rgb(139 92 246) 0%, rgb(167 139 250) 100%);
+}
+
+.progress-social {
+  background: linear-gradient(90deg, rgb(236 72 153) 0%, rgb(244 114 182) 100%);
+}
+
+/* Enhanced Micro-animations for Learning Interface */
+.micro-bounce {
+  animation: micro-bounce 0.6s ease-in-out;
+}
+
+@keyframes micro-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.scale-in {
+  animation: scale-in 0.3s ease-out;
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Educational Achievement Pulse Animation */
+.achievement-pulse {
+  animation: achievement-pulse 2s ease-in-out infinite;
+}
+
+@keyframes achievement-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    transform: scale(1.02);
+  }
+}
+
+/* Learning Focus Mode */
+.focus-highlight {
+  position: relative;
+}
+
+.focus-highlight::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, rgb(37 99 235), transparent, rgb(16 185 129));
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.focus-highlight:focus-within::before {
+  opacity: 1;
+}
+
+/* Educational Card States */
+.card-learning {
+  border-left: 4px solid rgb(37 99 235);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, transparent 100%);
+}
+
+.card-progress {
+  border-left: 4px solid rgb(16 185 129);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+}
+
+.card-achievement {
+  border-left: 4px solid rgb(245 158 11);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+}
+
+.card-collaboration {
+  border-left: 4px solid rgb(236 72 153);
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.05) 0%, transparent 100%);
+}
+
+/* Interactive Elements */
+.interactive-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.interactive-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.button-press {
+  transition: transform 0.1s ease-in-out;
+}
+
+.button-press:active {
+  transform: scale(0.98);
+}
+
+/* Accent Colors for Strategic Use */
+.accent-emerald {
+  color: rgb(34 197 94);
+}
+
+.accent-emerald-bg {
+  background-color: rgb(34 197 94 / 0.1);
+  border-color: rgb(34 197 94 / 0.2);
+}
+
+.accent-blue {
+  color: rgb(59 130 246);
+}
+
+.accent-blue-bg {
+  background-color: rgb(59 130 246 / 0.1);
+  border-color: rgb(59 130 246 / 0.2);
+}
+
+/* Loading Shimmer Effect */
+.shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.4) 50%, 
+    rgba(255, 255, 255, 0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Staggered Animation Delays */
+.delay-0 { animation-delay: 0s; }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }

@@ -11,6 +11,10 @@ interface User {
   is_student: boolean;
   role: string;
   profile_completed: boolean;
+  skills?: string[] | string | null; // backend returns comma-separated string; we normalize to string[] when setting state
+  github_profile?: string | null;
+  // UI-friendly aliases (added at runtime)
+  profileCompleted?: boolean;
 }
 
 interface AuthContextType {
@@ -19,6 +23,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
+  updateUserProfile: (data: { fullName: string; college: string; skills: string[]; githubProfile?: string }) => Promise<void>;
 }
 
 interface RegisterData {
@@ -63,7 +68,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (response.ok) {
         const userData = await response.json();
-        setUser(userData);
+        // Normalize skills (backend returns comma-separated string)
+        let skills: string[] | undefined = undefined;
+        if (userData.skills) {
+          if (Array.isArray(userData.skills)) {
+            skills = userData.skills as string[];
+          } else if (typeof userData.skills === 'string') {
+            skills = userData.skills
+              .split(',')
+              .map((s: string) => s.trim())
+              .filter((s: string) => s.length > 0);
+          }
+        }
+        const transformed: User = {
+          ...userData,
+          skills,
+          profileCompleted: userData.profile_completed
+        };
+        setUser(transformed);
       } else {
         localStorage.removeItem('auth_token');
       }
@@ -131,12 +153,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     toast.success('Logged out successfully');
   };
 
+  const updateUserProfile = async (data: { fullName: string; college: string; skills: string[]; githubProfile?: string }) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('Not authenticated');
+    try {
+      const response = await fetch('http://localhost:8000/profile-setup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          full_name: data.fullName,
+          college: data.college,
+            skills: data.skills,
+          github_profile: data.githubProfile || null
+        })
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Profile update failed');
+      }
+      // Optimistically update local user state
+      setUser(prev => prev ? {
+        ...prev,
+        name: data.fullName,
+        college_name: data.college,
+        skills: data.skills,
+        github_profile: data.githubProfile || null,
+        profile_completed: true,
+        profileCompleted: true
+      } : prev);
+      toast.success('Profile updated');
+    } catch (e: any) {
+      toast.error(e.message || 'Profile update failed');
+      throw e;
+    }
+  };
+
   const value: AuthContextType = {
     user,
     loading,
     login,
     register,
-    logout
+    logout,
+    updateUserProfile
   };
 
   return (

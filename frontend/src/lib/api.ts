@@ -224,10 +224,17 @@ export const authApi = {
     return apiRequest<Post[]>('/posts')
   },
 
-  createPost: async (data: PostCreateData): Promise<{ message: string; post_id: number }> => {
-    return apiRequest<{ message: string; post_id: number }>('/posts', {
+  createPost: async (data: PostCreateData): Promise<Post> => {
+    return apiRequest<Post>('/posts', {
       method: 'POST',
       body: JSON.stringify(data),
+    })
+  },
+
+  votePost: async (postId: number, vote: number): Promise<{ upvotes: number; downvotes: number }> => {
+    return apiRequest<{ upvotes: number; downvotes: number }>(`/posts/${postId}/vote`, {
+      method: 'PUT',
+      body: JSON.stringify({ vote }),
     })
   },
 
@@ -298,10 +305,11 @@ export const authApi = {
     return apiRequest<Comment[]>(`/posts/${postId}/comments`)
   },
 
-  createComment: async (data: CommentCreateData): Promise<{ message: string; comment_id: number }> => {
-    return apiRequest<{ message: string; comment_id: number }>('/comments', {
+  createComment: async (data: CommentCreateData): Promise<Comment> => {
+    // POST /posts/{post_id}/comments
+    return apiRequest<Comment>(`/posts/${data.post_id}/comments`, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ content: data.content, post_id: data.post_id }),
     })
   },
 
@@ -313,27 +321,27 @@ export const authApi = {
 
 // Simplified API exports for easier usage
 export const api = {
-  get: async (endpoint: string) => {
-    return apiRequest(endpoint, { method: 'GET' })
+  get: async <T = any>(endpoint: string) => {
+    return apiRequest<T>(endpoint, { method: 'GET' })
   },
-  post: async (endpoint: string, data?: any) => {
-    return apiRequest(endpoint, {
+  post: async <T = any>(endpoint: string, data?: any) => {
+    return apiRequest<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
     })
   },
-  put: async (endpoint: string, data?: any, options?: { params?: Record<string, string> }) => {
+  put: async <T = any>(endpoint: string, data?: any, options?: { params?: Record<string, string> }) => {
     let url = endpoint
     if (options?.params) {
       const searchParams = new URLSearchParams(options.params)
       url += `?${searchParams.toString()}`
     }
-    return apiRequest(url, {
+    return apiRequest<T>(url, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
     })
   },
-  delete: async (endpoint: string) => {
-    return apiRequest(endpoint, { method: 'DELETE' })
+  delete: async <T = any>(endpoint: string) => {
+    return apiRequest<T>(endpoint, { method: 'DELETE' })
   },
 }

@@ -174,6 +174,20 @@ def init_db():
             FOREIGN KEY (project_id) REFERENCES projects (id)
         )
     """)
+
+    # Post votes table (tracks per-user votes)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS post_votes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_id INTEGER,
+            user_id INTEGER,
+            vote INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (post_id) REFERENCES posts (id),
+            FOREIGN KEY (user_id) REFERENCES users (id),
+            UNIQUE(post_id, user_id)
+        )
+    """)
     
     conn.commit()
     conn.close()
@@ -435,7 +449,7 @@ async def login(user_data: UserLogin):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
     # Verify password
-    if not verify_password(user_data.password, user[5]):  # user[5] is hashed_password
+    if not verify_password(user_data.password, user[6]):  # user[6] is hashed_password (correct index)
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
     # Create access token
@@ -466,10 +480,21 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         email=user[2],
         college_name=user[3],
         is_student=bool(user[4]),
-        skills=user[5] if len(user) > 5 else None,
-        github_profile=user[6] if len(user) > 6 else None,
-        profile_completed=bool(user[7]) if len(user) > 7 else False
+        skills=user[7] if len(user) > 7 else None,  # user[7] is skills (correct index)
+        github_profile=user[8] if len(user) > 8 else None,  # user[8] is github_profile (correct index)
+        profile_completed=bool(user[9]) if len(user) > 9 else False  # user[9] is profile_completed (correct index)
     )
+
+
+def get_user_from_token(credentials: HTTPAuthorizationCredentials):
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            return None
+    except JWTError:
+        return None
+    return get_user_by_email(email)
 
 @app.post("/profile-setup")
 async def setup_profile(profile_data: ProfileSetup, credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -502,6 +527,202 @@ async def setup_profile(profile_data: ProfileSetup, credentials: HTTPAuthorizati
     conn.close()
     
     return {"message": "Profile updated successfully"}
+
+
+# Posts endpoints
+@app.get("/posts", response_model=List[Post])
+async def list_posts(page: int = 1, limit: int = 20, subgroup: Optional[int] = None):
+    offset = (page - 1) * limit
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    params: List = []
+    query = "SELECT p.id, p.title, p.content, u.name, u.college_name, s.name, p.post_type, p.upvotes, p.downvotes, (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) as comment_count, p.created_at FROM posts p LEFT JOIN users u ON p.author_id = u.id LEFT JOIN subgroups s ON p.subgroup_id = s.id"
+    if subgroup:
+        query += " WHERE p.subgroup_id = ?"
+        params.append(subgroup)
+    query += " ORDER BY p.created_at DESC LIMIT ? OFFSET ?"
+    params.extend([limit, offset])
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    conn.close()
+
+    posts: List[Post] = []
+    for r in rows:
+        posts.append(Post(
+            id=r[0],
+            title=r[1],
+            content=r[2],
+            author_name=r[3] or 'Unknown',
+            author_college=r[4] or '',
+            subgroup_name=r[5] or '',
+            post_type=r[6] or 'discussion',
+            upvotes=r[7] or 0,
+            downvotes=r[8] or 0,
+            comment_count=r[9] or 0,
+            created_at=str(r[10])
+        ))
+    return posts
+
+
+@app.post("/posts", response_model=Post)
+async def create_post(post: PostCreate, credentials: HTTPAuthorizationCredentials = Depends(security)):
+    user = get_user_from_token(credentials)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO posts (title, content, author_id, subgroup_id, post_type) VALUES (?, ?, ?, ?, ?)", (post.title, post.content, user[0], post.subgroup_id, post.post_type))
+    conn.commit()
+    post_id = cursor.lastrowid
+    # fetch created post
+    cursor.execute("SELECT p.id, p.title, p.content, u.name, u.college_name, s.name, p.post_type, p.upvotes, p.downvotes, (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) as comment_count, p.created_at FROM posts p LEFT JOIN users u ON p.author_id = u.id LEFT JOIN subgroups s ON p.subgroup_id = s.id WHERE p.id = ?", (post_id,))
+    r = cursor.fetchone()
+    conn.close()
+    return Post(
+        id=r[0],
+        title=r[1],
+        content=r[2],
+        author_name=r[3] or 'Unknown',
+        author_college=r[4] or '',
+        subgroup_name=r[5] or '',
+        post_type=r[6] or 'discussion',
+        upvotes=r[7] or 0,
+        downvotes=r[8] or 0,
+        comment_count=r[9] or 0,
+        created_at=str(r[10])
+    )
+
+
+@app.put("/posts/{post_id}/vote")
+async def vote_post(post_id: int, payload: dict, credentials: HTTPAuthorizationCredentials = Depends(security)):
+    # payload expected: {"vote": 1 | -1 | 0}
+    vote_val = int(payload.get('vote', 0))
+    if vote_val not in (-1, 0, 1):
+        raise HTTPException(status_code=400, detail="Invalid vote value")
+    user = get_user_from_token(credentials)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    # Check existing vote
+    cursor.execute("SELECT vote FROM post_votes WHERE post_id = ? AND user_id = ?", (post_id, user[0]))
+    existing = cursor.fetchone()
+
+    try:
+        if existing is None:
+            if vote_val != 0:
+                cursor.execute("INSERT INTO post_votes (post_id, user_id, vote) VALUES (?, ?, ?)", (post_id, user[0], vote_val))
+                if vote_val == 1:
+                    cursor.execute("UPDATE posts SET upvotes = upvotes + 1 WHERE id = ?", (post_id,))
+                else:
+                    cursor.execute("UPDATE posts SET downvotes = downvotes + 1 WHERE id = ?", (post_id,))
+        else:
+            prev = existing[0]
+            if vote_val == 0:
+                # remove vote
+                cursor.execute("DELETE FROM post_votes WHERE post_id = ? AND user_id = ?", (post_id, user[0]))
+                if prev == 1:
+                    cursor.execute("UPDATE posts SET upvotes = upvotes - 1 WHERE id = ?", (post_id,))
+                elif prev == -1:
+                    cursor.execute("UPDATE posts SET downvotes = downvotes - 1 WHERE id = ?", (post_id,))
+            else:
+                # update vote if changed
+                if prev != vote_val:
+                    cursor.execute("UPDATE post_votes SET vote = ? WHERE post_id = ? AND user_id = ?", (vote_val, post_id, user[0]))
+                    if prev == 1 and vote_val == -1:
+                        cursor.execute("UPDATE posts SET upvotes = upvotes - 1, downvotes = downvotes + 1 WHERE id = ?", (post_id,))
+                    elif prev == -1 and vote_val == 1:
+                        cursor.execute("UPDATE posts SET downvotes = downvotes - 1, upvotes = upvotes + 1 WHERE id = ?", (post_id,))
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=500, detail=str(e))
+
+    conn.commit()
+    # return updated counts
+    cursor.execute("SELECT upvotes, downvotes FROM posts WHERE id = ?", (post_id,))
+    counts = cursor.fetchone()
+    conn.close()
+    return {"upvotes": counts[0], "downvotes": counts[1]}
+
+
+# Subgroups endpoints
+@app.get("/subgroups", response_model=List[Subgroup])
+async def list_subgroups(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
+    user = None
+    if credentials:
+        user = get_user_from_token(credentials)
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    cursor.execute("SELECT s.id, s.name, s.description, s.icon, (SELECT COUNT(*) FROM user_subgroups us WHERE us.subgroup_id = s.id) as member_count, (SELECT COUNT(*) FROM posts p WHERE p.subgroup_id = s.id) as post_count FROM subgroups s ORDER BY s.name ASC")
+    rows = cursor.fetchall()
+    subgroups: List[Subgroup] = []
+    for r in rows:
+        is_joined = False
+        if user:
+            cursor.execute("SELECT 1 FROM user_subgroups WHERE user_id = ? AND subgroup_id = ?", (user[0], r[0]))
+            is_joined = cursor.fetchone() is not None
+        subgroups.append(Subgroup(id=r[0], name=r[1], description=r[2] or '', icon=r[3] or '', member_count=r[4] or 0, post_count=r[5] or 0, is_joined=is_joined))
+    conn.close()
+    return subgroups
+
+
+@app.post("/subgroups/{subgroup_id}/join")
+async def join_subgroup(subgroup_id: int, credentials: HTTPAuthorizationCredentials = Depends(security)):
+    user = get_user_from_token(credentials)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT OR IGNORE INTO user_subgroups (user_id, subgroup_id) VALUES (?, ?)", (user[0], subgroup_id))
+        conn.commit()
+        # get new count
+        cursor.execute("SELECT COUNT(*) FROM user_subgroups WHERE subgroup_id = ?", (subgroup_id,))
+        count = cursor.fetchone()[0]
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=500, detail=str(e))
+    conn.close()
+    return {"success": True, "member_count": count}
+
+
+# Comments endpoints
+@app.get("/posts/{post_id}/comments", response_model=List[Comment])
+async def get_comments(post_id: int):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    cursor.execute("SELECT c.id, c.content, u.name, c.created_at FROM comments c LEFT JOIN users u ON c.author_id = u.id WHERE c.post_id = ? ORDER BY c.created_at ASC", (post_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    comments: List[Comment] = []
+    for r in rows:
+        comments.append(Comment(id=r[0], content=r[1], author_name=r[2] or 'Unknown', created_at=str(r[3])))
+    return comments
+
+
+@app.post("/posts/{post_id}/comments", response_model=Comment)
+async def create_comment(post_id: int, comment: CommentCreate, credentials: HTTPAuthorizationCredentials = Depends(security)):
+    user = get_user_from_token(credentials)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO comments (content, author_id, post_id) VALUES (?, ?, ?)", (comment.content, user[0], post_id))
+        conn.commit()
+        comment_id = cursor.lastrowid
+        cursor.execute("SELECT c.id, c.content, u.name, c.created_at FROM comments c LEFT JOIN users u ON c.author_id = u.id WHERE c.id = ?", (comment_id,))
+        r = cursor.fetchone()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=500, detail=str(e))
+    conn.close()
+    return Comment(id=r[0], content=r[1], author_name=r[2] or 'Unknown', created_at=str(r[3]))
 
 @app.get("/subgroups", response_model=List[Subgroup])
 async def get_subgroups(credentials: HTTPAuthorizationCredentials = Depends(security)):
