@@ -40,11 +40,31 @@ export const registerUser = async (email: string, password: string, userData: {
   profile_picture: string;
 }) => {
   try {
-    // Use API route for registration which handles both Firebase Auth and Firestore
-    const result = await registerUserAPI(email, password, userData);
-    return result;
+    // First, create user with Firebase Auth
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Then call API route to store additional user data
+    const result = await registerUserAPI(email, password, {
+      ...userData,
+      uid: user.uid
+    });
+
+    if (result.success) {
+      return {
+        success: true,
+        user: {
+          uid: user.uid,
+          email: user.email,
+          ...userData
+        }
+      };
+    } else {
+      throw new Error(result.error);
+    }
   } catch (error: any) {
-    throw new Error(error.message);
+    console.error('Registration error:', error);
+    throw new Error(error.message || 'Registration failed');
   }
 };
 
@@ -158,6 +178,39 @@ export const getSubgroups = async () => {
   }
 };
 
+// College functions
+export const getColleges = async () => {
+  try {
+    // Return mock college data
+    return [
+      {
+        id: 1,
+        name: 'Stanford University',
+        description: 'Leading technology and innovation university',
+        student_count: 17000,
+        location: 'Stanford, CA'
+      },
+      {
+        id: 2,
+        name: 'MIT',
+        description: 'Massachusetts Institute of Technology',
+        student_count: 11500,
+        location: 'Cambridge, MA'
+      },
+      {
+        id: 3,
+        name: 'UC Berkeley',
+        description: 'University of California, Berkeley',
+        student_count: 31000,
+        location: 'Berkeley, CA'
+      }
+    ];
+  } catch (error) {
+    console.error('Error fetching colleges:', error);
+    return [];
+  }
+};
+
 // Vote functions
 export const voteOnPost = async (postId: string, voteType: 'up' | 'down') => {
   try {
@@ -199,6 +252,121 @@ export const createComment = async (commentData: {
     // This would need to be implemented as an API route
     console.log('Creating comment:', commentData);
     return { success: true };
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+// Admin functions
+export const getAdminStats = async () => {
+  try {
+    const response = await fetch('/api/admin/stats');
+    if (!response.ok) throw new Error('Failed to fetch admin stats');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching admin stats:', error);
+    return {
+      total_users: 0,
+      total_posts: 0,
+      total_projects: 0,
+      total_colleges: 0
+    };
+  }
+};
+
+export const createCollege = async (collegeData: {
+  name: string;
+  domain: string;
+}) => {
+  try {
+    const response = await fetch('/api/colleges', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(collegeData),
+    });
+    if (!response.ok) throw new Error('Failed to create college');
+    return await response.json();
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+// Project detail functions
+export const getProjectTasks = async (projectId: string) => {
+  try {
+    const response = await fetch(`/api/projects/${projectId}/tasks`);
+    if (!response.ok) throw new Error('Failed to fetch tasks');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    return [];
+  }
+};
+
+export const getProjectMessages = async (projectId: string) => {
+  try {
+    const response = await fetch(`/api/projects/${projectId}/messages`);
+    if (!response.ok) throw new Error('Failed to fetch messages');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    return [];
+  }
+};
+
+export const createTask = async (taskData: {
+  title: string;
+  description: string;
+  status: string;
+  project_id: number;
+}) => {
+  try {
+    const response = await fetch('/api/tasks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(taskData),
+    });
+    if (!response.ok) throw new Error('Failed to create task');
+    return await response.json();
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+export const updateTaskStatus = async (taskId: number, status: string) => {
+  try {
+    const response = await fetch(`/api/tasks/${taskId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    });
+    if (!response.ok) throw new Error('Failed to update task');
+    return await response.json();
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+export const sendProjectMessage = async (projectId: string, messageData: {
+  content: string;
+  project_id: number;
+}) => {
+  try {
+    const response = await fetch(`/api/projects/${projectId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(messageData),
+    });
+    if (!response.ok) throw new Error('Failed to send message');
+    return await response.json();
   } catch (error: any) {
     throw new Error(error.message);
   }

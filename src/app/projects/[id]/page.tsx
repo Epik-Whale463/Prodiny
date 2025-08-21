@@ -24,7 +24,7 @@ import {
   Code,
   FileText
 } from 'lucide-react';
-import { api } from '@/lib/api';
+import { authApi } from '@/lib/api';
 
 interface Project {
   id: number;
@@ -88,15 +88,15 @@ export default function ProjectDashboard() {
     setLoading(true);
     try {
       const [projectsResponse, tasksResponse, messagesResponse] = await Promise.all([
-        api.get('/projects'),
-        api.get(`/projects/${projectId}/tasks`),
-        api.get(`/projects/${projectId}/messages`)
+        authApi.getProjects(),
+        authApi.getProjectTasks(projectId),
+        authApi.getProjectMessages(projectId)
       ]);
       
-      const currentProject = projectsResponse.data.find((p: Project) => p.id === parseInt(projectId));
+      const currentProject = projectsResponse.find((p: Project) => p.id === parseInt(projectId));
       setProject(currentProject);
-      setTasks(tasksResponse.data);
-      setMessages(messagesResponse.data);
+      setTasks(tasksResponse);
+      setMessages(messagesResponse);
     } catch (error) {
       console.error('Error fetching project data:', error);
     } finally {
@@ -113,7 +113,7 @@ export default function ProjectDashboard() {
     if (!newTask.title.trim()) return;
 
     try {
-      await api.post('/tasks', {
+      await authApi.createTask({
         ...newTask,
         project_id: parseInt(projectId)
       });
@@ -126,9 +126,7 @@ export default function ProjectDashboard() {
 
   const handleUpdateTaskStatus = async (taskId: number, newStatus: string) => {
     try {
-      await api.put(`/tasks/${taskId}/status`, null, {
-        params: { status: newStatus }
-      });
+      await authApi.updateTaskStatus(taskId, newStatus);
       fetchProjectData(); // Refresh data
     } catch (error) {
       console.error('Error updating task status:', error);
@@ -140,7 +138,7 @@ export default function ProjectDashboard() {
     if (!newMessage.trim()) return;
 
     try {
-      await api.post(`/projects/${projectId}/messages`, {
+      await authApi.sendProjectMessage(projectId, {
         content: newMessage,
         project_id: parseInt(projectId)
       });
@@ -298,12 +296,12 @@ export default function ProjectDashboard() {
                       <Input
                         placeholder="Task title"
                         value={newTask.title}
-                        onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTask({ ...newTask, title: e.target.value })}
                         required
                       />
                     </div>
                     <div>
-                      <Select value={newTask.status} onValueChange={(value) => setNewTask({ ...newTask, status: value })}>
+                      <Select value={newTask.status} onValueChange={(value: string) => setNewTask({ ...newTask, status: value })}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
@@ -318,7 +316,7 @@ export default function ProjectDashboard() {
                   <Textarea
                     placeholder="Task description (optional)"
                     value={newTask.description}
-                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewTask({ ...newTask, description: e.target.value })}
                   />
                   <Button type="submit">Add Task</Button>
                 </form>
@@ -467,7 +465,7 @@ export default function ProjectDashboard() {
                   <Input
                     placeholder="Type a message..."
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMessage(e.target.value)}
                     className="flex-1"
                   />
                   <Button type="submit" size="sm">

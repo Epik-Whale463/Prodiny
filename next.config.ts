@@ -1,29 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Production optimizations - use standalone for dynamic routes
-  output: 'standalone',
-  images: {
-    unoptimized: true,
-  },
-  
-  // Environment-specific API URL
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://prodiny.onrender.com',
-  },
-  
-  // Performance optimizations
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-  },
-  
-  // Ignore ESLint errors during build for deployment
+  /* config options here */
   eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
-  
-  // Ignore TypeScript errors during build for deployment
   typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
     ignoreBuildErrors: true,
   },
 };

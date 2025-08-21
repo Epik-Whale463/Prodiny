@@ -22,7 +22,7 @@ import {
   Shield,
   Database
 } from 'lucide-react';
-import { api } from '@/lib/api';
+import { authApi } from '@/lib/api';
 
 interface AdminStats {
   total_users: number;
@@ -55,12 +55,12 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       const [statsResponse, collegesResponse] = await Promise.all([
-        api.get('/admin/stats'),
-        api.get('/colleges')
+        authApi.getAdminStats(),
+        authApi.getColleges()
       ]);
       
-      setStats(statsResponse.data);
-      setColleges(collegesResponse.data);
+      setStats(statsResponse);
+      setColleges(collegesResponse);
     } catch (error) {
       console.error('Error fetching admin data:', error);
     } finally {
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
     if (!newCollege.name.trim()) return;
 
     try {
-      await api.post('/colleges', newCollege);
+      await authApi.createCollege(newCollege);
       setNewCollege({ name: '', domain: '' });
       fetchAdminData(); // Refresh data
     } catch (error) {
@@ -201,7 +201,7 @@ export default function AdminDashboard() {
                         id="college-name"
                         placeholder="e.g., Massachusetts Institute of Technology"
                         value={newCollege.name}
-                        onChange={(e) => setNewCollege({ ...newCollege, name: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCollege({ ...newCollege, name: e.target.value })}
                         required
                       />
                     </div>
@@ -211,7 +211,7 @@ export default function AdminDashboard() {
                         id="college-domain"
                         placeholder="e.g., mit.edu"
                         value={newCollege.domain}
-                        onChange={(e) => setNewCollege({ ...newCollege, domain: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCollege({ ...newCollege, domain: e.target.value })}
                       />
                     </div>
                     <Button type="submit" className="w-full">
