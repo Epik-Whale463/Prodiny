@@ -1,25 +1,21 @@
 # Render Blueprint for Prodiny Platform
 # This file defines infrastructure as code for the entire application
-# Updated: Force redeploy with correct backend URL prodiny.onrender.com
+# Updated: Migrated to Node.js Firebase Backend
 
 services:
-  # Backend API Service
+  # Backend API Service (Node.js + Firebase)
   - type: web
     name: prodiny-backend
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port 10000
+    runtime: node
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
     envVars:
-      - key: ENVIRONMENT
+      - key: NODE_ENV
         value: production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: prodiny-db
-          property: connectionString
-      - key: JWT_SECRET_KEY
-        generateValue: true
       - key: CORS_ORIGINS
         value: https://prodiny-frontend.onrender.com,http://localhost:3000
+      - key: PORT
+        value: 3001
     healthCheckPath: /health
     
   # Frontend Web Service
@@ -36,8 +32,4 @@ services:
       - key: PORT
         value: 3000
 
-databases:
-  # PostgreSQL Database
-  - name: prodiny-db
-    databaseName: prodiny_production
-    user: prodiny_user
+# Remove database section since we're using Firebase

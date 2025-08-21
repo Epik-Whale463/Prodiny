@@ -2,210 +2,130 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { registerUser, loginUser, logoutUser, getUserProfile } from '@/lib/firebase-api';
 
-// Use the same API base URL as configured in next.config.ts
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodiny.onrender.com';
-
-interface User {
-  id: number;
-  name: string;
+interface UserProfile {
+  uid: string;
+  username: string;
   email: string;
-  college_name?: string;
-  is_student: boolean;
   role: string;
-  profile_completed: boolean;
-  skills?: string[] | string | null; // backend returns comma-separated string; we normalize to string[] when setting state
-  github_profile?: string | null;
-  // UI-friendly aliases (added at runtime)
-  profileCompleted?: boolean;
+  college_name?: string;
+  full_name?: string;
+  bio?: string;
+  profile_picture?: string;
+  created_at: string;
+  last_login?: string;
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: FirebaseUser | null;
+  userProfile: UserProfile | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (userData: RegisterData) => Promise<void>;
-  logout: () => void;
-  updateUserProfile: (data: { fullName: string; college: string; skills: string[]; githubProfile?: string }) => Promise<void>;
-}
-
-interface RegisterData {
-  name: string;
-  email: string;
-  college_name: string;
-  is_student: boolean;
-  password: string;
+  login: (email: string, password: string) => Promise<boolean>;
+  register: (username: string, email: string, password: string, fullName: string, role: string) => Promise<boolean>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function useAuth() {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(firebaseUser);
+      
+      if (firebaseUser) {
+        try {
+          const profile = await getUserProfile(firebaseUser.uid);
+          setUserProfile(profile);
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+          setUserProfile(null);
+        }
+      } else {
+        setUserProfile(null);
+      }
+      
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const result = await loginUser(email, password);
+      if (result.success) {
+        toast.success('Login successful!');
+        return true;
+      } else {
+        toast.error(result.error || 'Login failed');
+        return false;
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Network error. Please try again.');
+      return false;
+    }
+  };
+
+  const register = async (
+    username: string, 
+    email: string, 
+    password: string, 
+    fullName: string, 
+    role: string
+  ): Promise<boolean> => {
+    try {
+      const result = await registerUser(email, password, {
+        username,
+        full_name: fullName,
+        role,
+        college_name: '',
+        bio: '',
+        profile_picture: ''
+      });
+      
+      if (result.success) {
+        toast.success('Registration successful! Please log in.');
+        return true;
+      } else {
+        toast.error(result.error || 'Registration failed');
+        return false;
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast.error('Network error. Please try again.');
+      return false;
+    }
+  };
+
+  const logout = async (): Promise<void> => {
+    try {
+      await logoutUser();
+      toast.success('Logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Error logging out');
+    }
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, userProfile, loading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      fetchCurrentUser(token);
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  const fetchCurrentUser = async (token: string) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (response.ok) {
-        const userData = await response.json();
-        // Normalize skills (backend returns comma-separated string)
-        let skills: string[] | undefined = undefined;
-        if (userData.skills) {
-          if (Array.isArray(userData.skills)) {
-            skills = userData.skills as string[];
-          } else if (typeof userData.skills === 'string') {
-            skills = userData.skills
-              .split(',')
-              .map((s: string) => s.trim())
-              .filter((s: string) => s.length > 0);
-          }
-        }
-        const transformed: User = {
-          ...userData,
-          skills,
-          profileCompleted: userData.profile_completed
-        };
-        setUser(transformed);
-      } else {
-        localStorage.removeItem('auth_token');
-      }
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      localStorage.removeItem('auth_token');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('auth_token', data.access_token);
-        await fetchCurrentUser(data.access_token);
-        toast.success('Successfully signed in!');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Login failed');
-      }
-    } catch (error: any) {
-      toast.error(error.message || 'Login failed');
-      throw error;
-    }
-  };
-
-  const register = async (userData: RegisterData) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('auth_token', data.access_token);
-        await fetchCurrentUser(data.access_token);
-        toast.success('Account created successfully!');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Registration failed');
-      }
-    } catch (error: any) {
-      toast.error(error.message || 'Registration failed');
-      throw error;
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('auth_token');
-    setUser(null);
-    toast.success('Logged out successfully');
-  };
-
-  const updateUserProfile = async (data: { fullName: string; college: string; skills: string[]; githubProfile?: string }) => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error('Not authenticated');
-    try {
-      const response = await fetch(`${API_BASE_URL}/profile-setup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          full_name: data.fullName,
-          college: data.college,
-            skills: data.skills,
-          github_profile: data.githubProfile || null
-        })
-      });
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.detail || 'Profile update failed');
-      }
-      // Optimistically update local user state
-      setUser(prev => prev ? {
-        ...prev,
-        name: data.fullName,
-        college_name: data.college,
-        skills: data.skills,
-        github_profile: data.githubProfile || null,
-        profile_completed: true,
-        profileCompleted: true
-      } : prev);
-      toast.success('Profile updated');
-    } catch (e: any) {
-      toast.error(e.message || 'Profile update failed');
-      throw e;
-    }
-  };
-
-  const value: AuthContextType = {
-    user,
-    loading,
-    login,
-    register,
-    logout,
-    updateUserProfile
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
+};
